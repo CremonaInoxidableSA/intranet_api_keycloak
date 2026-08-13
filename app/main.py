@@ -1,11 +1,6 @@
 from fastapi import FastAPI, Depends
 
-from app.schemas.authenticated_user import AuthenticatedUser
-from app.security.dependencies import get_current_user
-from app.services.gestionpersonal.detalles import procesar_detalles
-
 from app.core.config import settings
-from app.security.jwks import jwks_client
 
 from app.routers.usuarios import detalles
 from app.routers.usuarios import usuarios
@@ -43,6 +38,11 @@ from app.routers.permisos import eliminarmodulos
 from app.routers.permisos import eliminarsubmodulos
 from app.routers.permisos import eliminarpermisos
 
+from app.routers.produccion import crearusuarioproduccion
+from app.routers.produccion import listausuariosproduccion
+from app.routers.produccion import editarusuarioproduccion
+from app.routers.produccion import asignargrupoproduccion
+from app.routers.produccion import eliminarusuarioproduccion
 
 #Cosas MYSQL
 from sqlalchemy import create_engine, text 
@@ -76,6 +76,13 @@ app = FastAPI(
 
 app.include_router(detalles.router)
 app.include_router(gestionpersonal.router)
+
+
+app.include_router(listausuariosproduccion.router)
+app.include_router(crearusuarioproduccion.router)
+app.include_router(asignargrupoproduccion.router)
+app.include_router(eliminarusuarioproduccion.router)
+app.include_router(editarusuarioproduccion.router)
 
 
 app.include_router(usuarios.router)

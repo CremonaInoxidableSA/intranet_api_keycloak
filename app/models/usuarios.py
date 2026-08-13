@@ -7,4 +7,4 @@ class Usuarios(Base):
 
     id = Column(String(255), primary_key=True, nullable=False)
     legajo = Column(Integer, nullable=True, unique=True)
-    dni = Column(Integer, nullable=True)
+    dni = Column(Integer, nullable=True, unique=True)
