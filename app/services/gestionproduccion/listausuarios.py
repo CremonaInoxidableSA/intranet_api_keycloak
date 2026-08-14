@@ -3,6 +3,27 @@ import asyncio
 
 from app.services.funcioneskeycloak.get_admin_base_url import get_admin_base_url
 from app.services.funcioneskeycloak.get_admin_token import get_admin_token
+from app.config.db import SessionLocal
+from app.models.usuarios import Usuarios
+
+def obtener_legajo_usuario(user_id: str):
+    """
+    Obtiene el legajo del usuario desde la base de datos.
+    """
+    legajo = None
+    
+    try:
+        db = SessionLocal()
+        usuario_db = db.query(Usuarios).filter(Usuarios.id == user_id).first()
+        db.close()
+        
+        if usuario_db and usuario_db.legajo is not None:
+            legajo = usuario_db.legajo
+    
+    except Exception:
+        pass
+    
+    return legajo
 
 async def obtener_grupos_usuario(client: httpx.AsyncClient, user_id: str, headers: dict):
     """
@@ -62,7 +83,6 @@ async def obtener_lista_usuarios(filtro: str = None):
                 apellido = usuario.get("lastName", "").lower()
                 filtro_lower = filtro.lower()
                 
-                # Verificar si el filtro coincide en alguno de los campos
                 if not (filtro_lower in nombre or filtro_lower in apellido):
                     continue
             
@@ -79,20 +99,22 @@ async def obtener_lista_usuarios(filtro: str = None):
         usuarios_procesados = []
         
         for usuario, grupos in zip(usuarios_filtrados, grupos_list):
-            # Verificar que el usuario tenga al menos uno de los grupos permitidos
             nombres_grupos = {g["nombre"] for g in grupos}
             grupos_interseccion = nombres_grupos.intersection(GRUPOS_PERMITIDOS)
             if not grupos_interseccion:
                 continue
             
-            # Obtener el grupo del usuario (primer grupo permitido encontrado)
             grupo_del_usuario = next(iter(grupos_interseccion))
+            
+            # Obtener legajo desde la base de datos
+            legajo = obtener_legajo_usuario(usuario.get("id"))
             
             usuario_procesado = {
                 "id": usuario.get("id"),
                 "nombre": usuario.get("firstName"),
                 "apellido": usuario.get("lastName"),
-                "grupo": grupo_del_usuario
+                "grupo": grupo_del_usuario,
+                "legajo": legajo
             }
             
             usuarios_procesados.append(usuario_procesado)

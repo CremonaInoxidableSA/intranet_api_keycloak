@@ -6,32 +6,12 @@ from app.services.funcioneskeycloak.get_admin_base_url import get_admin_base_url
 from app.services.funcioneskeycloak.get_admin_token import get_admin_token
 from app.services.funcioneskeycloak.get_user import get_user
 
+from app.services.funcioneskeycloak.verificar_conexiones import verificar_conexiones
+
 from app.services.gestionpermisos.listagrupos import obtener_grupos_realm
 from app.config.db import SessionLocal
 from app.models.usuarios import Usuarios
 from app.core.config import settings
-
-async def verificar_conexiones():
-    try:
-        url = (
-            f"{settings.KEYCLOAK_URL}"
-            f"/realms/{settings.KEYCLOAK_REALM}"
-            "/.well-known/openid-configuration"
-        )
-        
-        async with httpx.AsyncClient() as client:
-            response = await client.get(url, timeout=5.0)
-            response.raise_for_status()
-    except Exception as e:
-        raise Exception(f"Error de conexión con Keycloak: {str(e)}")
-    
-    try:
-        db = SessionLocal()
-        db.execute(text("SELECT 1"))
-        db.close()
-    except Exception as e:
-        raise Exception(f"Error de conexión con Base de Datos: {str(e)}")
-
 
 async def crear_usuario(
     username: str,
@@ -49,9 +29,10 @@ async def crear_usuario(
     Verifica conexiones antes de crear.
     """
     
+    await verificar_conexiones()
+
+    GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADO_PRODUCCION", "GRUPO_OPERARIO_PRODUCCION"}
     if grupo is not None:
-        GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADO_PRODUCCION", "GRUPO_OPERARIO_PRODUCCION"}
-        
         if grupo not in GRUPOS_PERMITIDOS:
             raise Exception(f"El grupo '{grupo}' no es permitido. Solo se permiten: {', '.join(GRUPOS_PERMITIDOS)}")
     
@@ -72,9 +53,40 @@ async def crear_usuario(
         
         if usuario_existente:
             usuario_keycloak = await get_user(usuario_existente.id)
+            
+            try:
+                token = await get_admin_token()
+                headers = {
+                    "Authorization": f"Bearer {token}"
+                }
+                
+                grupos_url = f"{get_admin_base_url()}/users/{usuario_existente.id}/groups"
+                
+                async with httpx.AsyncClient() as client:
+                    response = await client.get(
+                        grupos_url,
+                        headers=headers
+                    )
+                    response.raise_for_status()
+                    
+                    grupos = response.json()
+                    nombres_grupos = {g.get("name") for g in grupos}
+                    
+                    tiene_grupo_produccion = bool(nombres_grupos.intersection(GRUPOS_PERMITIDOS))
+                
+                if tiene_grupo_produccion:
+                    return {
+                        "success": False,
+                        "code": "EXISTE_PRODUCCION",
+                        "detail": f"El DNI o LEGAJO ingresado ya se encuentra asignado al usuario '{usuario_keycloak.get('firstName', '')} {usuario_keycloak.get('lastName', '')}'"
+                    }
+            except Exception:
+                pass
+            
             return {
                 "success": False,
-                "detail": "El usuario ya existe con ese DNI o LEGAJO",
+                "code": "EXISTE_GENERAL",
+                "detail": "El DNI o LEGAJO ingresado ya se encuentra asignado a un usuario existente.",
                 "id": usuario_existente.id,
                 "nombre": usuario_keycloak.get("firstName", ""),
                 "apellido": usuario_keycloak.get("lastName", "")
@@ -157,7 +169,6 @@ async def crear_usuario(
             
             grupo_id = grupo_encontrado["id"]
             
-            # Asignar el grupo al usuario
             grupos_url = f"{get_admin_base_url()}/users/{user_id}/groups/{grupo_id}"
             async with httpx.AsyncClient() as client:
                 join_response = await client.put(

@@ -62,6 +62,7 @@ async def procesar_detalles(user: AuthenticatedUser):
         dni = 0
     
     return {
+        "id": user.id,
         "email": user.email,
         "nombre": user.first_name,
         "apellido": user.last_name,
