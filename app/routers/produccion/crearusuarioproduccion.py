@@ -30,7 +30,7 @@ async def create_new_user(
             first_name=data.nombre,
             last_name=data.apellido,
             password="12345678",
-            habilitado=data.habilitado,
+            habilitado=True,
             dni=data.dni,
             legajo=data.legajo,
             grupo=data.grupo

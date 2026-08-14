@@ -1,6 +1,7 @@
 import httpx
 from sqlalchemy import text
 from typing import Optional
+import logging
 
 from app.services.funcioneskeycloak.get_admin_base_url import get_admin_base_url
 from app.services.funcioneskeycloak.get_admin_token import get_admin_token
@@ -35,6 +36,34 @@ async def crear_usuario(
     if grupo is not None:
         if grupo not in GRUPOS_PERMITIDOS:
             raise Exception(f"El grupo '{grupo}' no es permitido. Solo se permiten: {', '.join(GRUPOS_PERMITIDOS)}")
+        
+    try:
+        token = await get_admin_token()
+
+        url = (
+            f"{get_admin_base_url()}"
+            "/users"
+        )
+            
+        async with httpx.AsyncClient() as client:
+            check_email_response = await client.get(
+                f"{url}?email={email}",
+                headers={
+                    "Authorization": f"Bearer {token}"
+                }
+            )
+            check_email_response.raise_for_status()
+            
+            usuarios_con_email = check_email_response.json()
+            
+            if usuarios_con_email:
+                return {
+                    "success": False,
+                    "code": "EMAIL_DUPLICADO",
+                    "detail": f"El email '{email}' ya se encuentra registrado en el sistema."
+                }    
+    except Exception as e:
+        raise Exception(f"Error verificando email: {str(e)}")
     
     db = SessionLocal()
     try:
@@ -52,44 +81,11 @@ async def crear_usuario(
         db.close()
         
         if usuario_existente:
-            usuario_keycloak = await get_user(usuario_existente.id)
-            
-            try:
-                token = await get_admin_token()
-                headers = {
-                    "Authorization": f"Bearer {token}"
-                }
-                
-                grupos_url = f"{get_admin_base_url()}/users/{usuario_existente.id}/groups"
-                
-                async with httpx.AsyncClient() as client:
-                    response = await client.get(
-                        grupos_url,
-                        headers=headers
-                    )
-                    response.raise_for_status()
-                    
-                    grupos = response.json()
-                    nombres_grupos = {g.get("name") for g in grupos}
-                    
-                    tiene_grupo_produccion = bool(nombres_grupos.intersection(GRUPOS_PERMITIDOS))
-                
-                if tiene_grupo_produccion:
-                    return {
-                        "success": False,
-                        "code": "EXISTE_PRODUCCION",
-                        "detail": f"El DNI o LEGAJO ingresado ya se encuentra asignado al usuario '{usuario_keycloak.get('firstName', '')} {usuario_keycloak.get('lastName', '')}'"
-                    }
-            except Exception:
-                pass
-            
             return {
                 "success": False,
                 "code": "EXISTE_GENERAL",
-                "detail": "El DNI o LEGAJO ingresado ya se encuentra asignado a un usuario existente.",
-                "id": usuario_existente.id,
-                "nombre": usuario_keycloak.get("firstName", ""),
-                "apellido": usuario_keycloak.get("lastName", "")
+                "detail": f"El DNI o LEGAJO ingresado ya se encuentra asignado a un usuario perteneciente a la intranet.",
+                "id": usuario_existente.id
             }
     except Exception as e:
         db.close()
@@ -102,7 +98,7 @@ async def crear_usuario(
             f"{get_admin_base_url()}"
             "/users"
         )
-
+        
         body = {
             "username": username,
             "email": email,
@@ -176,6 +172,7 @@ async def crear_usuario(
                     headers=headers
                 )
                 join_response.raise_for_status()
+            
         
         except Exception as e:
             raise Exception(f"Error al asignar grupo: {str(e)}")
@@ -193,10 +190,11 @@ async def crear_usuario(
             db.commit()
             db.close()
             
+            
         except Exception as db_error:
             db.close()
             raise Exception(f"Falla en creación en base de datos: {str(db_error)}")
-    
+        
     return {
         "success": True,
         "detail": "Creación correcta"

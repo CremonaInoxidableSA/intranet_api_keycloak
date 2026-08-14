@@ -14,6 +14,4 @@ class CreateUserProduccionRequest(BaseModel):
 
     legajo: int | None = None
 
-    habilitado: bool = True
-
     grupo: Optional[str] = None
