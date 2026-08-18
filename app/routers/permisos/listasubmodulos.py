@@ -21,13 +21,6 @@ async def listar_submodulos(
 ):
     """
     Retorna la lista de todos los submódulos disponibles en el realm con paginación.
-    Solo retorna los submódulos que comienzan con "SUBMODULO_".
-    
-    Retorna máximo 10 submódulos por página.
-    
-    Query Parameters:
-        - numero_pagina: Número de página (default: 1)
-        - filtro: String para filtrar submódulos por nombre (opcional)
     """
     
     try:

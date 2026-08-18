@@ -9,7 +9,7 @@ async def asignar_grupo(user_id: str, grupo: str):
     Asigna un grupo permitido a un usuario en Keycloak.
     """
     
-    GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADO_PRODUCCION", "GRUPO_OPERARIO_PRODUCCION"}
+    GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADOS_PRODUCCION", "GRUPO_OPERARIOS_PRODUCCION"}
     
     if grupo not in GRUPOS_PERMITIDOS:
         raise Exception(f"El grupo '{grupo}' no es permitido. Solo se permiten: {', '.join(GRUPOS_PERMITIDOS)}")

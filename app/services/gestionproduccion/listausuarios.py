@@ -51,7 +51,7 @@ async def obtener_lista_usuarios(filtro: str = None):
     Obtiene la lista de usuarios de Keycloak con filtro.
     """
     
-    GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADO_PRODUCCION", "GRUPO_OPERARIO_PRODUCCION"}
+    GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADOS_PRODUCCION", "GRUPO_OPERARIOS_PRODUCCION"}
     
     try:
         token = await get_admin_token()

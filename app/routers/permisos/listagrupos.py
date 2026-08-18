@@ -21,13 +21,6 @@ async def listar_grupos(
 ):
     """
     Retorna la lista de todos los grupos disponibles en el realm con paginación.
-    Solo retorna los grupos que comienzan con "GRUPO_".
-    
-    Retorna máximo 10 grupos por página.
-    
-    Query Parameters:
-        - numero_pagina: Número de página (default: 1)
-        - filtro: String para filtrar grupos por nombre (opcional)
     """
     
     try:

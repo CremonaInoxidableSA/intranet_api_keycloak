@@ -13,7 +13,7 @@ router = APIRouter(
 
 @router.put(
     "/editar",
-    dependencies=[Depends(require_role("PERMISO_EDITAR_MODULO"))]
+    dependencies=[Depends(require_role("PERMISO_EDITAR_MODULOS"))]
 )
 async def editar_modulo_endpoint(
     modulo_nombre: str,

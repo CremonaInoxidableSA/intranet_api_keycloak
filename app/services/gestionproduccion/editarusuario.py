@@ -19,7 +19,7 @@ async def editar_usuario(
 ):
     
     if grupo is not None:
-        GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADO_PRODUCCION", "GRUPO_OPERARIO_PRODUCCION"}
+        GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADOS_PRODUCCION", "GRUPO_OPERARIOS_PRODUCCION"}
         
         if grupo not in GRUPOS_PERMITIDOS:
             raise Exception(f"El grupo '{grupo}' no es permitido. Solo se permiten: {', '.join(GRUPOS_PERMITIDOS)}")
@@ -76,7 +76,7 @@ async def editar_usuario(
             response.raise_for_status()
     
     if grupo is not None:
-        GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADO_PRODUCCION", "GRUPO_OPERARIO_PRODUCCION"}
+        GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADOS_PRODUCCION", "GRUPO_OPERARIOS_PRODUCCION"}
         
         all_grupos_url = f"{get_admin_base_url()}/groups"
         

@@ -15,7 +15,7 @@ router = APIRouter(
 @router.put("/habilitar")
 async def put_habilitar_submodulo(
     submodulo_nombre: str = Query(..., description="Nombre del submódulo a habilitar"),
-    usuario: AuthenticatedUser = Depends(require_role("PERMISO_EDITAR_SUBMODULO"))
+    usuario: AuthenticatedUser = Depends(require_role("PERMISO_EDITAR_SUBMODULOS"))
 ):
     """
     Habilita un submódulo.
@@ -33,7 +33,7 @@ async def put_habilitar_submodulo(
 @router.put("/deshabilitar")
 async def put_deshabilitar_submodulo(
     submodulo_nombre: str = Query(..., description="Nombre del submódulo a deshabilitar"),
-    usuario: AuthenticatedUser = Depends(require_role("PERMISO_EDITAR_SUBMODULO"))
+    usuario: AuthenticatedUser = Depends(require_role("PERMISO_EDITAR_SUBMODULOS"))
 ):
     """
     Deshabilita un submódulo.

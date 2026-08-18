@@ -23,14 +23,6 @@ async def editar_grupo_endpoint(
 ):
     """
     Edita un grupo en Keycloak.
-    
-    Query Parameters:
-        - grupo_nombre: Nombre actual del grupo a editar
-    
-    Body:
-        - permisos: Lista de permisos a asignar (opcional)
-        - modulos: Lista de módulos a asignar (opcional)
-        - submodulos: Lista de submódulos a asignar (opcional)
     """
     
     if data is None:

@@ -13,7 +13,7 @@ router = APIRouter(
 
 @router.delete(
     "/eliminar",
-    dependencies=[Depends(require_role("PERMISO_ELIMINAR_MODULO"))]
+    dependencies=[Depends(require_role("PERMISO_ELIMINAR_MODULOS"))]
 )
 async def delete_modulo(
     modulo_nombre: str = Query(..., description="Nombre del módulo a eliminar"),

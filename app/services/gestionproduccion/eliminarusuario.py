@@ -9,7 +9,7 @@ async def eliminar_usuario(user_id: str):
     Elimina los grupos de producción del usuario en Keycloak.
     """
     
-    GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADO_PRODUCCION", "GRUPO_OPERARIO_PRODUCCION"}
+    GRUPOS_PERMITIDOS = {"GRUPO_ENCARGADOS_PRODUCCION", "GRUPO_OPERARIOS_PRODUCCION"}
     
     try:
         token = await get_admin_token()
