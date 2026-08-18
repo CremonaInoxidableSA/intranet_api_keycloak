@@ -38,6 +38,7 @@ from app.routers.permisos import eliminarmodulos
 from app.routers.permisos import eliminarsubmodulos
 from app.routers.permisos import eliminarpermisos
 
+from app.routers.produccion import detallesusuariosproduccion
 from app.routers.produccion import crearusuarioproduccion
 from app.routers.produccion import listausuariosproduccion
 from app.routers.produccion import editarusuarioproduccion
@@ -78,6 +79,7 @@ app.include_router(detalles.router)
 app.include_router(gestionpersonal.router)
 
 
+app.include_router(detallesusuariosproduccion.router)
 app.include_router(listausuariosproduccion.router)
 app.include_router(crearusuarioproduccion.router)
 app.include_router(asignargrupoproduccion.router)
