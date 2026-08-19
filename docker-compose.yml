@@ -11,6 +11,8 @@ services:
       TZ: ${TIMEZONE:-America/Argentina/Buenos_Aires}
     volumes:
       - mysql_data:/var/lib/mysql
+      - ./db_init:/docker-entrypoint-initdb.d
+    command: --default-authentication-plugin=mysql_native_password --bind-address=0.0.0.0
     networks:
       - intranet_api_keycloak_network
     expose:
