@@ -1,4 +1,0 @@
--- Grant permissions to user
-ALTER USER '${DB_USER}'@'%' IDENTIFIED BY '${DB_PASSWORD}';
-GRANT ALL PRIVILEGES ON ${DB_NAME}.* TO '${DB_USER}'@'%';
-FLUSH PRIVILEGES;
